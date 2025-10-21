@@ -48,11 +48,10 @@ var _ = Describe("Test EphemeralRunnerSet controller", func() {
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &EphemeralRunnerSetReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			ActionsClient:           fake.NewMultiClient(),
-			MaxConcurrentReconciles: 1,
+			Client:        mgr.GetClient(),
+			Scheme:        mgr.GetScheme(),
+			Log:           logf.Log,
+			ActionsClient: fake.NewMultiClient(),
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1099,11 +1098,10 @@ var _ = Describe("Test EphemeralRunnerSet controller with proxy settings", func(
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &EphemeralRunnerSetReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			ActionsClient:           actions.NewMultiClient(logr.Discard()),
-			MaxConcurrentReconciles: 1,
+			Client:        mgr.GetClient(),
+			Scheme:        mgr.GetScheme(),
+			Log:           logf.Log,
+			ActionsClient: actions.NewMultiClient(logr.Discard()),
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1399,11 +1397,10 @@ var _ = Describe("Test EphemeralRunnerSet controller with custom root CA", func(
 		Expect(err).NotTo(HaveOccurred(), "failed to create configmap with root CAs")
 
 		controller := &EphemeralRunnerSetReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			ActionsClient:           actions.NewMultiClient(logr.Discard()),
-			MaxConcurrentReconciles: 1,
+			Client:        mgr.GetClient(),
+			Scheme:        mgr.GetScheme(),
+			Log:           logf.Log,
+			ActionsClient: actions.NewMultiClient(logr.Discard()),
 		}
 		err = controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")

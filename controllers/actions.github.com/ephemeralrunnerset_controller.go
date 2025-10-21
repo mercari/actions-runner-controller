@@ -55,8 +55,7 @@ type EphemeralRunnerSetReconciler struct {
 
 	PublishMetrics bool
 
-	MaxConcurrentReconciles int
-	WorkqueueRateLimiter    workqueue.RateLimiter
+	WorkqueueRateLimiter workqueue.RateLimiter
 
 	ResourceBuilder
 }
@@ -581,8 +580,7 @@ func (r *EphemeralRunnerSetReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		Owns(&v1alpha1.EphemeralRunner{}).
 		WithEventFilter(predicate.ResourceVersionChangedPredicate{}).
 		WithOptions(controller.Options{
-			MaxConcurrentReconciles: r.MaxConcurrentReconciles,
-			RateLimiter:             r.WorkqueueRateLimiter,
+			RateLimiter: r.WorkqueueRateLimiter,
 		}).
 		Complete(r)
 }

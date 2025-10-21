@@ -135,11 +135,5 @@ flags:
   # excludeLabelPropagationPrefixes:
   #   - "argocd.argoproj.io/instance"
 
-  ## Defines the maximum number of concurrent reconciles for each reconciler.
-  # maxConcurrentReconcilesForAutoscalingRunnerSet: 1
-  # maxConcurrentReconcilesForEphemeralRunnerSet: 1
-  # maxConcurrentReconcilesForEphemeralRunner: 1
-  # maxConcurrentReconcilesForAutoscalingListener: 1
-
   ## Defines the client-go rate limiter parameters.
   # disableWorkqueueBucketRateLimiter: false

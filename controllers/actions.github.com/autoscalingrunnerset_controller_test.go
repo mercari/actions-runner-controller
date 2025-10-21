@@ -71,7 +71,6 @@ var _ = Describe("Test AutoScalingRunnerSet controller", Ordered, func() {
 			ControllerNamespace:                autoscalingNS.Name,
 			DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 			ActionsClient:                      fake.NewMultiClient(),
-			MaxConcurrentReconciles:            1,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -705,7 +704,6 @@ var _ = Describe("Test AutoScalingController updates", Ordered, func() {
 						nil,
 					),
 				),
-				MaxConcurrentReconciles: 1,
 			}
 			err := controller.SetupWithManager(mgr)
 			Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -821,7 +819,6 @@ var _ = Describe("Test AutoscalingController creation failures", Ordered, func()
 				ControllerNamespace:                autoscalingNS.Name,
 				DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 				ActionsClient:                      fake.NewMultiClient(),
-				MaxConcurrentReconciles:            1,
 			}
 			err := controller.SetupWithManager(mgr)
 			Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -948,7 +945,6 @@ var _ = Describe("Test client optional configuration", Ordered, func() {
 				ControllerNamespace:                autoscalingNS.Name,
 				DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 				ActionsClient:                      actions.NewMultiClient(logr.Discard()),
-				MaxConcurrentReconciles:            1,
 			}
 
 			err := controller.SetupWithManager(mgr)
@@ -1132,7 +1128,6 @@ var _ = Describe("Test client optional configuration", Ordered, func() {
 				ControllerNamespace:                autoscalingNS.Name,
 				DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 				ActionsClient:                      fake.NewMultiClient(),
-				MaxConcurrentReconciles:            1,
 			}
 			err = controller.SetupWithManager(mgr)
 			Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1367,7 +1362,6 @@ var _ = Describe("Test external permissions cleanup", Ordered, func() {
 			ControllerNamespace:                autoscalingNS.Name,
 			DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 			ActionsClient:                      fake.NewMultiClient(),
-			MaxConcurrentReconciles:            1,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1526,7 +1520,6 @@ var _ = Describe("Test external permissions cleanup", Ordered, func() {
 			ControllerNamespace:                autoscalingNS.Name,
 			DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 			ActionsClient:                      fake.NewMultiClient(),
-			MaxConcurrentReconciles:            1,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1735,7 +1728,6 @@ var _ = Describe("Test resource version and build version mismatch", func() {
 			ControllerNamespace:                autoscalingNS.Name,
 			DefaultRunnerScaleSetListenerImage: "ghcr.io/actions/arc",
 			ActionsClient:                      fake.NewMultiClient(),
-			MaxConcurrentReconciles:            1,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")

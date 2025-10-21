@@ -101,11 +101,10 @@ var _ = Describe("EphemeralRunner", func() {
 			configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 			controller = &EphemeralRunnerReconciler{
-				Client:                  mgr.GetClient(),
-				Scheme:                  mgr.GetScheme(),
-				Log:                     logf.Log,
-				ActionsClient:           fake.NewMultiClient(),
-				MaxConcurrentReconciles: 1,
+				Client:        mgr.GetClient(),
+				Scheme:        mgr.GetScheme(),
+				Log:           logf.Log,
+				ActionsClient: fake.NewMultiClient(),
 			}
 
 			err := controller.SetupWithManager(mgr)
@@ -682,7 +681,6 @@ var _ = Describe("EphemeralRunner", func() {
 						nil,
 					),
 				),
-				MaxConcurrentReconciles: 1,
 			}
 			err := controller.SetupWithManager(mgr)
 			Expect(err).To(BeNil(), "failed to setup controller")
@@ -739,11 +737,10 @@ var _ = Describe("EphemeralRunner", func() {
 			configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoScalingNS.Name)
 
 			controller = &EphemeralRunnerReconciler{
-				Client:                  mgr.GetClient(),
-				Scheme:                  mgr.GetScheme(),
-				Log:                     logf.Log,
-				ActionsClient:           fake.NewMultiClient(),
-				MaxConcurrentReconciles: 1,
+				Client:        mgr.GetClient(),
+				Scheme:        mgr.GetScheme(),
+				Log:           logf.Log,
+				ActionsClient: fake.NewMultiClient(),
 			}
 			err := controller.SetupWithManager(mgr)
 			Expect(err).To(BeNil(), "failed to setup controller")
@@ -904,11 +901,10 @@ var _ = Describe("EphemeralRunner", func() {
 			Expect(err).NotTo(HaveOccurred(), "failed to create configmap with root CAs")
 
 			controller = &EphemeralRunnerReconciler{
-				Client:                  mgr.GetClient(),
-				Scheme:                  mgr.GetScheme(),
-				Log:                     logf.Log,
-				ActionsClient:           fake.NewMultiClient(),
-				MaxConcurrentReconciles: 1,
+				Client:        mgr.GetClient(),
+				Scheme:        mgr.GetScheme(),
+				Log:           logf.Log,
+				ActionsClient: fake.NewMultiClient(),
 			}
 
 			err = controller.SetupWithManager(mgr)

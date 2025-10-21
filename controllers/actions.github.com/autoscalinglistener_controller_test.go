@@ -44,10 +44,9 @@ var _ = Describe("Test AutoScalingListener controller", func() {
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &AutoscalingListenerReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			MaxConcurrentReconciles: 1,
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+			Log:    logf.Log,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -509,10 +508,9 @@ var _ = Describe("Test AutoScalingListener customization", func() {
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &AutoscalingListenerReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			MaxConcurrentReconciles: 1,
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+			Log:    logf.Log,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -784,10 +782,9 @@ var _ = Describe("Test AutoScalingListener controller with proxy", func() {
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &AutoscalingListenerReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			MaxConcurrentReconciles: 1,
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+			Log:    logf.Log,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -981,10 +978,9 @@ var _ = Describe("Test AutoScalingListener controller with template modification
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
 		controller := &AutoscalingListenerReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			MaxConcurrentReconciles: 1,
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+			Log:    logf.Log,
 		}
 		err := controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")
@@ -1098,10 +1094,9 @@ var _ = Describe("Test GitHub Server TLS configuration", func() {
 		Expect(err).NotTo(HaveOccurred(), "failed to create configmap with root CAs")
 
 		controller := &AutoscalingListenerReconciler{
-			Client:                  mgr.GetClient(),
-			Scheme:                  mgr.GetScheme(),
-			Log:                     logf.Log,
-			MaxConcurrentReconciles: 1,
+			Client: mgr.GetClient(),
+			Scheme: mgr.GetScheme(),
+			Log:    logf.Log,
 		}
 		err = controller.SetupWithManager(mgr)
 		Expect(err).NotTo(HaveOccurred(), "failed to setup controller")

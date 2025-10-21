@@ -81,7 +81,6 @@ type AutoscalingRunnerSetReconciler struct {
 	DefaultRunnerScaleSetListenerImagePullSecrets []string
 	UpdateStrategy                                UpdateStrategy
 	ActionsClient                                 actions.MultiClient
-	MaxConcurrentReconciles                       int
 	WorkqueueRateLimiter                          workqueue.RateLimiter
 	ResourceBuilder
 }
@@ -768,8 +767,7 @@ func (r *AutoscalingRunnerSetReconciler) SetupWithManager(mgr ctrl.Manager) erro
 		)).
 		WithEventFilter(predicate.ResourceVersionChangedPredicate{}).
 		WithOptions(controller.Options{
-			MaxConcurrentReconciles: r.MaxConcurrentReconciles,
-			RateLimiter:             r.WorkqueueRateLimiter,
+			RateLimiter: r.WorkqueueRateLimiter,
 		}).
 		Complete(r)
 }

@@ -51,11 +51,10 @@ const (
 // EphemeralRunnerReconciler reconciles a EphemeralRunner object
 type EphemeralRunnerReconciler struct {
 	client.Client
-	Log                     logr.Logger
-	Scheme                  *runtime.Scheme
-	ActionsClient           actions.MultiClient
-	MaxConcurrentReconciles int
-	WorkqueueRateLimiter    workqueue.RateLimiter
+	Log                  logr.Logger
+	Scheme               *runtime.Scheme
+	ActionsClient        actions.MultiClient
+	WorkqueueRateLimiter workqueue.RateLimiter
 	ResourceBuilder
 }
 
@@ -840,8 +839,7 @@ func (r *EphemeralRunnerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&corev1.Pod{}).
 		WithEventFilter(predicate.ResourceVersionChangedPredicate{}).
 		WithOptions(controller.Options{
-			MaxConcurrentReconciles: r.MaxConcurrentReconciles,
-			RateLimiter:             r.WorkqueueRateLimiter,
+			RateLimiter: r.WorkqueueRateLimiter,
 		}).
 		Complete(r)
 }

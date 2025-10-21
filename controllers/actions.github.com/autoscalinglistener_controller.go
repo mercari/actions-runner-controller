@@ -57,8 +57,7 @@ type AutoscalingListenerReconciler struct {
 	ListenerMetricsAddr     string
 	ListenerMetricsEndpoint string
 
-	MaxConcurrentReconciles int
-	WorkqueueRateLimiter    workqueue.RateLimiter
+	WorkqueueRateLimiter workqueue.RateLimiter
 
 	ResourceBuilder
 }
@@ -736,8 +735,7 @@ func (r *AutoscalingListenerReconciler) SetupWithManager(mgr ctrl.Manager) error
 		Watches(&rbacv1.RoleBinding{}, handler.EnqueueRequestsFromMapFunc(labelBasedWatchFunc)).
 		WithEventFilter(predicate.ResourceVersionChangedPredicate{}).
 		WithOptions(controller.Options{
-			MaxConcurrentReconciles: r.MaxConcurrentReconciles,
-			RateLimiter:             r.WorkqueueRateLimiter,
+			RateLimiter: r.WorkqueueRateLimiter,
 		}).
 		Complete(r)
 }
