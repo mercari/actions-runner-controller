@@ -67,6 +67,10 @@ func TestInstallMetrics(t *testing.T) {
 				Buckets: []float64{0.1, 1},
 			},
 			// histogram metric should be registered with default runtime buckets
+			MetricJobQueueDurationSeconds: {
+				Labels: []string{labelKeyRepository},
+			},
+			// histogram metric should be registered with default runtime buckets
 			MetricJobStartupDurationSeconds: {
 				Labels: []string{labelKeyRepository},
 			},
@@ -77,7 +81,7 @@ func TestInstallMetrics(t *testing.T) {
 	got := installMetrics(metricsConfig, reg, logr.Discard())
 	assert.Len(t, got.counters, 1)
 	assert.Len(t, got.gauges, 1)
-	assert.Len(t, got.histograms, 2)
+	assert.Len(t, got.histograms, 3)
 
 	assert.Equal(t, got.counters[MetricStartedJobsTotal].config, metricsConfig.Counters[MetricStartedJobsTotal])
 	assert.Equal(t, got.gauges[MetricAssignedJobs].config, metricsConfig.Gauges[MetricAssignedJobs])
