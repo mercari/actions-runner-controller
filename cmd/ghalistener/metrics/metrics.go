@@ -45,6 +45,7 @@ const (
 	MetricIdleRunners                 = "gha_idle_runners"
 	MetricStartedJobsTotal            = "gha_started_jobs_total"
 	MetricCompletedJobsTotal          = "gha_completed_jobs_total"
+	MetricJobQueueDurationSeconds     = "gha_job_queue_duration_seconds"
 	MetricJobStartupDurationSeconds   = "gha_job_startup_duration_seconds"
 	MetricJobExecutionDurationSeconds = "gha_job_execution_duration_seconds"
 )
@@ -71,6 +72,7 @@ var metricsHelp = metricsHelpRegistry{
 		MetricIdleRunners:       "Number of registered runners not running a job.",
 	},
 	histograms: map[string]string{
+		MetricJobQueueDurationSeconds:     "Time spent waiting for workflow jobs to get assigned to the scale set after queueing (in seconds).",
 		MetricJobStartupDurationSeconds:   "Time spent waiting for workflow job to get started on the runner owned by the scale set (in seconds).",
 		MetricJobExecutionDurationSeconds: "Time spent executing workflow jobs by the scale set (in seconds).",
 	},
@@ -259,6 +261,16 @@ var defaultMetrics = v1alpha1.MetricsConfig{
 		},
 	},
 	Histograms: map[string]*v1alpha1.HistogramMetric{
+		MetricJobQueueDurationSeconds: {
+			Labels: []string{
+				labelKeyEnterprise,
+				labelKeyOrganization,
+				labelKeyRepository,
+				labelKeyJobName,
+				labelKeyEventName,
+			},
+			Buckets: defaultRuntimeBuckets,
+		},
 		MetricJobStartupDurationSeconds: {
 			Labels: []string{
 				labelKeyEnterprise,
@@ -480,6 +492,9 @@ func (e *exporter) PublishStatistics(stats *actions.RunnerScaleSetStatistic) {
 func (e *exporter) PublishJobStarted(msg *actions.JobStarted) {
 	l := e.startedJobLabels(msg)
 	e.incCounter(MetricStartedJobsTotal, l)
+
+	queueDuration := msg.ScaleSetAssignTime.Unix() - msg.QueueTime.Unix()
+	e.observeHistogram(MetricJobQueueDurationSeconds, l, float64(queueDuration))
 
 	startupDuration := msg.RunnerAssignTime.Unix() - msg.ScaleSetAssignTime.Unix()
 	e.observeHistogram(MetricJobStartupDurationSeconds, l, float64(startupDuration))
