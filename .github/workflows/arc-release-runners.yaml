@@ -1,4 +1,6 @@
 name: Release ARC Runner Images
+permissions:
+  contents: read
 
 # Revert to https://github.com/actions-runner-controller/releases#releases
 # for details on why we use this approach
@@ -17,7 +19,7 @@ env:
   PUSH_TO_REGISTRIES: true
   TARGET_ORG: actions-runner-controller
   TARGET_WORKFLOW: release-runners.yaml
-  DOCKER_VERSION: 24.0.7
+  DOCKER_VERSION: 28.0.4
 
 concurrency:
   group: ${{ github.workflow }}
@@ -28,7 +30,7 @@ jobs:
     name: Trigger Build and Push of Runner Images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get runner version
         id: versions
         run: |

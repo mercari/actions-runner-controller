@@ -36,8 +36,8 @@ var (
 
 	testResultCMNamePrefix = "test-result-"
 
-	RunnerVersion               = "2.328.0"
-	RunnerContainerHooksVersion = "0.7.0"
+	RunnerVersion               = "2.334.0"
+	RunnerContainerHooksVersion = "0.8.1"
 )
 
 // If you're willing to run this test via VS Code "run test" or "debug test",
@@ -455,7 +455,7 @@ func buildVars(repo, ubuntuVer string) vars {
 		runnerRootlessDindImage     = testing.Img(runnerRootlessDindImageRepo, runnerImageTag)
 
 		dindSidecarImageRepo = "docker"
-		dindSidecarImageTag  = "24.0.7-dind"
+		dindSidecarImageTag  = "28.0.4-dind"
 		dindSidecarImage     = testing.Img(dindSidecarImageRepo, dindSidecarImageTag)
 	)
 
@@ -1106,7 +1106,7 @@ func installActionsWorkflow(t *testing.T, testName, runnerLabel, testResultCMNam
 				testing.Step{
 					Uses: "actions/setup-go@v3",
 					With: &testing.With{
-						GoVersion: "1.25.1",
+						GoVersion: "1.26.1",
 					},
 				},
 			)
