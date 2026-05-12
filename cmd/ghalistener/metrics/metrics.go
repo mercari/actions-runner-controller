@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/actions/actions-runner-controller/apis/actions.github.com/v1alpha1"
@@ -106,6 +107,7 @@ func (e *exporter) startedJobLabels(msg *actions.JobStarted) prometheus.Labels {
 type Publisher interface {
 	PublishStatic(min, max int)
 	PublishStatistics(stats *actions.RunnerScaleSetStatistic)
+	PublishJobAvailable(msg *actions.JobAvailable)
 	PublishJobStarted(msg *actions.JobStarted)
 	PublishJobCompleted(msg *actions.JobCompleted)
 	PublishDesiredRunners(count int)
@@ -129,6 +131,9 @@ type exporter struct {
 	scaleSetLabels prometheus.Labels
 	*metrics
 	srv *http.Server
+
+	// JobStarted.QueueTime is unset on the wire, so we stash the queue time on JobAvailable.
+	queuedAt sync.Map // map[int64]time.Time keyed by RunnerRequestID
 }
 
 type metrics struct {
@@ -489,12 +494,25 @@ func (e *exporter) PublishStatistics(stats *actions.RunnerScaleSetStatistic) {
 	e.setGauge(MetricIdleRunners, e.scaleSetLabels, float64(stats.TotalIdleRunners))
 }
 
+func (e *exporter) PublishJobAvailable(msg *actions.JobAvailable) {
+	queuedAt := msg.QueueTime
+	if queuedAt.IsZero() {
+		queuedAt = time.Now()
+	}
+	e.queuedAt.Store(msg.RunnerRequestID, queuedAt)
+}
+
 func (e *exporter) PublishJobStarted(msg *actions.JobStarted) {
 	l := e.startedJobLabels(msg)
 	e.incCounter(MetricStartedJobsTotal, l)
 
-	queueDuration := msg.ScaleSetAssignTime.Unix() - msg.QueueTime.Unix()
-	e.observeHistogram(MetricJobQueueDurationSeconds, l, float64(queueDuration))
+	if v, ok := e.queuedAt.LoadAndDelete(msg.RunnerRequestID); ok {
+		if queuedAt, ok := v.(time.Time); ok && !queuedAt.IsZero() && !msg.ScaleSetAssignTime.IsZero() {
+			if d := msg.ScaleSetAssignTime.Sub(queuedAt).Seconds(); d >= 0 {
+				e.observeHistogram(MetricJobQueueDurationSeconds, l, d)
+			}
+		}
+	}
 
 	startupDuration := msg.RunnerAssignTime.Unix() - msg.ScaleSetAssignTime.Unix()
 	e.observeHistogram(MetricJobStartupDurationSeconds, l, float64(startupDuration))
@@ -516,6 +534,7 @@ type discard struct{}
 
 func (*discard) PublishStatic(int, int)                             {}
 func (*discard) PublishStatistics(*actions.RunnerScaleSetStatistic) {}
+func (*discard) PublishJobAvailable(*actions.JobAvailable)          {}
 func (*discard) PublishJobStarted(*actions.JobStarted)              {}
 func (*discard) PublishJobCompleted(*actions.JobCompleted)          {}
 func (*discard) PublishDesiredRunners(int)                          {}
