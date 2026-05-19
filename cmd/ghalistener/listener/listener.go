@@ -365,7 +365,14 @@ func (l *Listener) parseMessage(ctx context.Context, msg *actions.RunnerScaleSet
 				return nil, fmt.Errorf("failed to decode job available: %w", err)
 			}
 
-			l.logger.Info("Job available message received", "jobId", jobAvailable.JobID)
+			l.logger.Info("Job available message received",
+				"jobId", jobAvailable.JobID,
+				"runnerRequestId", jobAvailable.RunnerRequestID,
+				"queueTime", jobAvailable.QueueTime,
+				"queueTimeIsZero", jobAvailable.QueueTime.IsZero(),
+				"scaleSetAssignTime", jobAvailable.ScaleSetAssignTime,
+				"scaleSetAssignTimeIsZero", jobAvailable.ScaleSetAssignTime.IsZero(),
+			)
 			parsedMsg.jobsAvailable = append(parsedMsg.jobsAvailable, &jobAvailable)
 
 		case messageTypeJobAssigned:
@@ -374,14 +381,31 @@ func (l *Listener) parseMessage(ctx context.Context, msg *actions.RunnerScaleSet
 				return nil, fmt.Errorf("failed to decode job assigned: %w", err)
 			}
 
-			l.logger.Info("Job assigned message received", "jobId", jobAssigned.JobID)
+			l.logger.Info("Job assigned message received",
+				"jobId", jobAssigned.JobID,
+				"runnerRequestId", jobAssigned.RunnerRequestID,
+				"queueTime", jobAssigned.QueueTime,
+				"queueTimeIsZero", jobAssigned.QueueTime.IsZero(),
+				"scaleSetAssignTime", jobAssigned.ScaleSetAssignTime,
+				"scaleSetAssignTimeIsZero", jobAssigned.ScaleSetAssignTime.IsZero(),
+			)
 
 		case messageTypeJobStarted:
 			var jobStarted actions.JobStarted
 			if err := json.Unmarshal(msg, &jobStarted); err != nil {
 				return nil, fmt.Errorf("could not decode job started message. %w", err)
 			}
-			l.logger.Info("Job started message received.", "JobID", jobStarted.JobID, "RunnerId", jobStarted.RunnerID)
+			l.logger.Info("Job started message received.",
+				"JobID", jobStarted.JobID,
+				"RunnerId", jobStarted.RunnerID,
+				"runnerRequestId", jobStarted.RunnerRequestID,
+				"queueTime", jobStarted.QueueTime,
+				"queueTimeIsZero", jobStarted.QueueTime.IsZero(),
+				"scaleSetAssignTime", jobStarted.ScaleSetAssignTime,
+				"scaleSetAssignTimeIsZero", jobStarted.ScaleSetAssignTime.IsZero(),
+				"runnerAssignTime", jobStarted.RunnerAssignTime,
+				"runnerAssignTimeIsZero", jobStarted.RunnerAssignTime.IsZero(),
+			)
 			parsedMsg.jobsStarted = append(parsedMsg.jobsStarted, &jobStarted)
 
 		case messageTypeJobCompleted:
@@ -396,6 +420,13 @@ func (l *Listener) parseMessage(ctx context.Context, msg *actions.RunnerScaleSet
 				"Result", jobCompleted.Result,
 				"RunnerId", jobCompleted.RunnerId,
 				"RunnerName", jobCompleted.RunnerName,
+				"runnerRequestId", jobCompleted.RunnerRequestID,
+				"queueTime", jobCompleted.QueueTime,
+				"queueTimeIsZero", jobCompleted.QueueTime.IsZero(),
+				"scaleSetAssignTime", jobCompleted.ScaleSetAssignTime,
+				"scaleSetAssignTimeIsZero", jobCompleted.ScaleSetAssignTime.IsZero(),
+				"finishTime", jobCompleted.FinishTime,
+				"finishTimeIsZero", jobCompleted.FinishTime.IsZero(),
 			)
 			parsedMsg.jobsCompleted = append(parsedMsg.jobsCompleted, &jobCompleted)
 
