@@ -87,6 +87,7 @@ jobs:
       - name: Build & push controller image
         uses: docker/build-push-action@v6
         with:
+          context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: VERSION=${{ inputs.release_tag_name }}
