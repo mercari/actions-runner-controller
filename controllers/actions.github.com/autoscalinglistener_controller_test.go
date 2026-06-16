@@ -15,7 +15,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	ghalistenerconfig "github.com/actions/actions-runner-controller/cmd/ghalistener/config"
-	"github.com/actions/actions-runner-controller/github/actions/fake"
+	scalefake "github.com/actions/actions-runner-controller/controllers/actions.github.com/multiclient/fake"
+	"github.com/actions/actions-runner-controller/controllers/actions.github.com/secretresolver"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -26,9 +27,8 @@ import (
 )
 
 const (
-	autoscalingListenerTestTimeout     = time.Second * 20
-	autoscalingListenerTestInterval    = time.Millisecond * 250
-	autoscalingListenerTestGitHubToken = "gh_token"
+	autoscalingListenerTestTimeout  = time.Second * 20
+	autoscalingListenerTestInterval = time.Millisecond * 250
 )
 
 var _ = Describe("Test AutoScalingListener controller", func() {
@@ -44,7 +44,10 @@ var _ = Describe("Test AutoScalingListener controller", func() {
 		autoscalingNS, mgr = createNamespace(GinkgoT(), k8sClient)
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
-		secretResolver := NewSecretResolver(mgr.GetClient(), fake.NewMultiClient())
+		secretResolver := secretresolver.New(
+			mgr.GetClient(),
+			scalefake.NewMultiClient(),
+		)
 
 		rb := ResourceBuilder{
 			SecretResolver: secretResolver,
@@ -434,7 +437,7 @@ var _ = Describe("Test AutoScalingListener customization", func() {
 		autoscalingNS, mgr = createNamespace(GinkgoT(), k8sClient)
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
-		secretResolver := NewSecretResolver(mgr.GetClient(), fake.NewMultiClient())
+		secretResolver := secretresolver.New(mgr.GetClient(), scalefake.NewMultiClient())
 
 		rb := ResourceBuilder{
 			SecretResolver: secretResolver,
@@ -646,6 +649,55 @@ var _ = Describe("Test AutoScalingListener customization", func() {
 				autoscalingListenerTestInterval,
 			).ShouldNot(BeEquivalentTo(oldPodUID), "Pod should be created")
 		})
+
+		It("Should re-create pod when the listener pod is evicted", func() {
+			pod := new(corev1.Pod)
+			Eventually(
+				func() (string, error) {
+					err := k8sClient.Get(
+						ctx,
+						client.ObjectKey{
+							Name:      autoscalingListener.Name,
+							Namespace: autoscalingListener.Namespace,
+						},
+						pod,
+					)
+					if err != nil {
+						return "", err
+					}
+
+					return pod.Name, nil
+				},
+				autoscalingListenerTestTimeout,
+				autoscalingListenerTestInterval,
+			).Should(
+				BeEquivalentTo(autoscalingListener.Name),
+				"Pod should be created",
+			)
+
+			updated := pod.DeepCopy()
+			oldPodUID := string(pod.UID)
+			updated.Status.Reason = "Evicted"
+			err := k8sClient.Status().Update(ctx, updated)
+			Expect(err).NotTo(HaveOccurred(), "failed to update pod status")
+
+			pod = new(corev1.Pod)
+			Eventually(
+				func() (string, error) {
+					err := k8sClient.Get(ctx, client.ObjectKey{Name: autoscalingListener.Name, Namespace: autoscalingListener.Namespace}, pod)
+					if err != nil {
+						return "", err
+					}
+
+					return string(pod.UID), nil
+				},
+				autoscalingListenerTestTimeout,
+				autoscalingListenerTestInterval,
+			).ShouldNot(
+				BeEquivalentTo(oldPodUID),
+				"Pod should be created",
+			)
+		})
 	})
 })
 
@@ -714,7 +766,7 @@ var _ = Describe("Test AutoScalingListener controller with proxy", func() {
 		ctx = context.Background()
 		autoscalingNS, mgr = createNamespace(GinkgoT(), k8sClient)
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
-		secretResolver := NewSecretResolver(mgr.GetClient(), fake.NewMultiClient())
+		secretResolver := secretresolver.New(mgr.GetClient(), scalefake.NewMultiClient())
 
 		rb := ResourceBuilder{
 			SecretResolver: secretResolver,
@@ -917,7 +969,7 @@ var _ = Describe("Test AutoScalingListener controller with template modification
 		autoscalingNS, mgr = createNamespace(GinkgoT(), k8sClient)
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
-		secretResolver := NewSecretResolver(mgr.GetClient(), fake.NewMultiClient())
+		secretResolver := secretresolver.New(mgr.GetClient(), scalefake.NewMultiClient())
 
 		rb := ResourceBuilder{
 			SecretResolver: secretResolver,
@@ -1020,7 +1072,7 @@ var _ = Describe("Test GitHub Server TLS configuration", func() {
 		autoscalingNS, mgr = createNamespace(GinkgoT(), k8sClient)
 		configSecret = createDefaultSecret(GinkgoT(), k8sClient, autoscalingNS.Name)
 
-		secretResolver := NewSecretResolver(mgr.GetClient(), fake.NewMultiClient())
+		secretResolver := secretresolver.New(mgr.GetClient(), scalefake.NewMultiClient())
 
 		rb := ResourceBuilder{
 			SecretResolver: secretResolver,
