@@ -239,6 +239,33 @@ func TestNewExporter(t *testing.T) {
 	})
 }
 
+func TestDefaultMetricsJobCounterLabels(t *testing.T) {
+	wantStarted := []string{
+		labelKeyEnterprise,
+		labelKeyOrganization,
+		labelKeyRepository,
+		labelKeyJobName,
+		labelKeyJobWorkflowName,
+		labelKeyJobWorkflowRepo,
+		labelKeyJobWorkflowPath,
+		labelKeyEventName,
+	}
+	assert.Equal(t, wantStarted, defaultMetrics.Counters[MetricStartedJobsTotal].Labels)
+
+	wantCompleted := []string{
+		labelKeyEnterprise,
+		labelKeyOrganization,
+		labelKeyRepository,
+		labelKeyJobName,
+		labelKeyJobWorkflowName,
+		labelKeyJobWorkflowRepo,
+		labelKeyJobWorkflowPath,
+		labelKeyEventName,
+		labelKeyJobResult,
+	}
+	assert.Equal(t, wantCompleted, defaultMetrics.Counters[MetricCompletedJobsTotal].Labels)
+}
+
 func TestExporterConfigDefaults(t *testing.T) {
 	config := ExporterConfig{
 		ScaleSetName:      "test-scale-set",
