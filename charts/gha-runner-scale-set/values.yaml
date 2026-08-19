@@ -154,7 +154,7 @@ githubConfigSecret:
 #   counters:
 #     gha_started_jobs_total:
 #       labels:
-#         ["repository", "organization", "enterprise", "job_name", "event_name", "job_workflow_ref", "job_workflow_name", "job_workflow_target"]
+#         ["repository", "organization", "enterprise", "job_name", "event_name", "job_workflow_ref", "job_workflow_name", "job_workflow_repo", "job_workflow_path", "job_workflow_target"]
 #     gha_completed_jobs_total:
 #       labels:
 #         [
@@ -166,6 +166,8 @@ githubConfigSecret:
 #           "job_result",
 #           "job_workflow_ref",
 #           "job_workflow_name",
+#           "job_workflow_repo",
+#           "job_workflow_path",
 #           "job_workflow_target",
 #         ]
 #   gauges:
@@ -188,7 +190,7 @@ githubConfigSecret:
 #   histograms:
 #     gha_job_startup_duration_seconds:
 #       labels:
-#         ["repository", "organization", "enterprise", "job_name", "event_name","job_workflow_ref", "job_workflow_name", "job_workflow_target"]
+#         ["repository", "organization", "enterprise", "job_name", "event_name","job_workflow_ref", "job_workflow_name", "job_workflow_repo", "job_workflow_path", "job_workflow_target"]
 #       buckets:
 #         [
 #           0.01,
@@ -248,6 +250,8 @@ githubConfigSecret:
 #           "job_result",
 #           "job_workflow_ref",
 #           "job_workflow_name",
+#           "job_workflow_repo",
+#           "job_workflow_path",
 #           "job_workflow_target"
 #         ]
 #       buckets:

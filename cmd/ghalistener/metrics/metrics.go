@@ -23,6 +23,8 @@ const (
 	labelKeyJobName                 = "job_name"
 	labelKeyJobWorkflowRef          = "job_workflow_ref"
 	labelKeyJobWorkflowName         = "job_workflow_name"
+	labelKeyJobWorkflowRepo         = "job_workflow_repo"
+	labelKeyJobWorkflowPath         = "job_workflow_path"
 	labelKeyJobWorkflowTarget       = "job_workflow_target"
 	labelKeyEventName               = "event_name"
 	labelKeyJobResult               = "job_result"
@@ -87,6 +89,8 @@ func (e *exporter) jobLabels(jobBase *actions.JobMessageBase) prometheus.Labels 
 		labelKeyJobName:           jobBase.JobDisplayName,
 		labelKeyJobWorkflowRef:    jobBase.JobWorkflowRef,
 		labelKeyJobWorkflowName:   workflowRefInfo.Name,
+		labelKeyJobWorkflowRepo:   workflowRefInfo.Repo,
+		labelKeyJobWorkflowPath:   workflowRefInfo.FilePath,
 		labelKeyJobWorkflowTarget: workflowRefInfo.Target,
 		labelKeyEventName:         jobBase.EventName,
 	}
