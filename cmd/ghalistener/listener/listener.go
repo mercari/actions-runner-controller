@@ -189,6 +189,10 @@ func (l *Listener) handleMessage(ctx context.Context, handler Handler, msg *acti
 	l.metrics.PublishStatistics(parsedMsg.statistics)
 
 	if len(parsedMsg.jobsAvailable) > 0 {
+		for _, jobAvailable := range parsedMsg.jobsAvailable {
+			l.metrics.PublishJobAvailable(jobAvailable)
+		}
+
 		acquiredJobIDs, err := l.acquireAvailableJobs(ctx, parsedMsg.jobsAvailable)
 		if err != nil {
 			return fmt.Errorf("failed to acquire jobs: %w", err)

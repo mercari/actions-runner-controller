@@ -1,9 +1,12 @@
 package metrics
 
 import (
+	"math"
 	"testing"
+	"time"
 
 	"github.com/actions/actions-runner-controller/apis/actions.github.com/v1alpha1"
+	"github.com/actions/actions-runner-controller/github/actions"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
@@ -293,4 +296,78 @@ func TestExporterConfigDefaults(t *testing.T) {
 	}
 
 	assert.Equal(t, want, config)
+}
+
+func TestJobQueueDurationMetric(t *testing.T) {
+	metricsConfig := v1alpha1.MetricsConfig{
+		Counters: map[string]*v1alpha1.CounterMetric{
+			MetricStartedJobsTotal: {
+				Labels: []string{labelKeyRepository},
+			},
+		},
+		Histograms: map[string]*v1alpha1.HistogramMetric{
+			MetricJobQueueDurationSeconds: {
+				Labels:  []string{labelKeyRepository},
+				Buckets: []float64{1, 5, 10},
+			},
+			MetricJobStartupDurationSeconds: {
+				Labels:  []string{labelKeyRepository},
+				Buckets: []float64{1, 5, 10},
+			},
+		},
+	}
+
+	reg := prometheus.NewRegistry()
+	installed := installMetrics(metricsConfig, reg, logr.Discard())
+	exporter := &exporter{
+		scaleSetLabels: prometheus.Labels{
+			labelKeyRepository: "repo",
+		},
+		metrics: installed,
+	}
+
+	queueTime := time.Unix(100, 0)
+	scaleSetAssignTime := queueTime.Add(30 * time.Second)
+	runnerAssignTime := scaleSetAssignTime.Add(10 * time.Second)
+
+	exporter.PublishJobAvailable(&actions.JobAvailable{
+		JobMessageBase: actions.JobMessageBase{
+			RunnerRequestID: 42,
+			RepositoryName:  "repo",
+			QueueTime:       queueTime,
+		},
+	})
+	exporter.PublishJobStarted(&actions.JobStarted{
+		JobMessageBase: actions.JobMessageBase{
+			RunnerRequestID:    42,
+			RepositoryName:     "repo",
+			ScaleSetAssignTime: scaleSetAssignTime,
+			RunnerAssignTime:   runnerAssignTime,
+		},
+	})
+
+	_, ok := exporter.queuedAt.Load(int64(42))
+	assert.False(t, ok, "queue time entry should be removed after job started")
+
+	metricFamilies, err := reg.Gather()
+	require.NoError(t, err)
+
+	var queueDurationCount float64
+	var queueDurationSum float64
+	for _, mf := range metricFamilies {
+		if mf.GetName() != "gha_job_queue_duration_seconds" {
+			continue
+		}
+		for _, m := range mf.GetMetric() {
+			for _, metric := range m.GetHistogram().GetBucket() {
+				if metric.GetUpperBound() == math.Inf(1) {
+					queueDurationCount = metric.GetCumulativeCount()
+				}
+			}
+			queueDurationSum = m.GetHistogram().GetSampleSum()
+		}
+	}
+
+	assert.Equal(t, float64(1), queueDurationCount)
+	assert.Equal(t, float64(30), queueDurationSum)
 }
