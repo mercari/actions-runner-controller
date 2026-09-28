@@ -854,6 +854,48 @@ var _ = Describe("EphemeralRunner", func() {
 			).Should(BeEquivalentTo(true))
 		})
 
+		It("It should re-create pod rejected at admission without container status", func() {
+			pod := new(corev1.Pod)
+			Eventually(
+				func() (bool, error) {
+					err := k8sClient.Get(ctx, client.ObjectKey{Name: ephemeralRunner.Name, Namespace: ephemeralRunner.Namespace}, pod)
+					if err != nil {
+						return false, err
+					}
+					return true, nil
+				},
+				ephemeralRunnerTimeout,
+				ephemeralRunnerInterval,
+			).Should(BeEquivalentTo(true))
+
+			pod.Status.Phase = corev1.PodFailed
+			pod.Status.Reason = "OutOfpods"
+			pod.Status.ContainerStatuses = nil
+			err := k8sClient.Status().Update(ctx, pod)
+			Expect(err).To(BeNil(), "failed to patch pod status")
+
+			updated := new(v1alpha1.EphemeralRunner)
+			Eventually(func() (bool, error) {
+				err := k8sClient.Get(ctx, client.ObjectKey{Name: ephemeralRunner.Name, Namespace: ephemeralRunner.Namespace}, updated)
+				if err != nil {
+					return false, err
+				}
+				return len(updated.Status.Failures) == 1, nil
+			}, ephemeralRunnerTimeout, ephemeralRunnerInterval).Should(BeEquivalentTo(true))
+
+			Eventually(
+				func() (bool, error) {
+					pod := new(corev1.Pod)
+					if err := k8sClient.Get(ctx, client.ObjectKey{Name: ephemeralRunner.Name, Namespace: ephemeralRunner.Namespace}, pod); err != nil {
+						return false, err
+					}
+					return pod.Status.Phase != corev1.PodFailed, nil
+				},
+				ephemeralRunnerTimeout,
+				ephemeralRunnerInterval,
+			).Should(BeEquivalentTo(true))
+		})
+
 		It("It should not set the phase to succeeded without pod termination status", func() {
 			pod := new(corev1.Pod)
 			Eventually(
