@@ -324,6 +324,18 @@ func (r *EphemeralRunnerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, nil
 
 	case cs == nil:
+		// A pod rejected at kubelet admission (e.g. OutOfpods) fails without any container status.
+		if pod.Status.Phase == corev1.PodFailed {
+			log.Info("Pod failed before the runner container started. Deleting pod",
+				"PodReason", pod.Status.Reason,
+				"PodMessage", pod.Status.Message,
+			)
+			if err := r.deletePodAsFailed(ctx, ephemeralRunner, pod, log); err != nil {
+				log.Error(err, "Failed to delete pod that failed before the runner container started")
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{}, nil
+		}
 		// starting, no container state yet
 		log.Info("Waiting for runner container status to be available")
 		return ctrl.Result{}, nil
