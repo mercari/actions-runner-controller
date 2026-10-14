@@ -34,6 +34,11 @@ func (_m *ServerPublisher) PublishDesiredRunners(count int) {
 	_m.Called(count)
 }
 
+// PublishJobAvailable provides a mock function with given fields: msg
+func (_m *ServerPublisher) PublishJobAvailable(msg *actions.JobAvailable) {
+	_m.Called(msg)
+}
+
 // PublishJobCompleted provides a mock function with given fields: msg
 func (_m *ServerPublisher) PublishJobCompleted(msg *actions.JobCompleted) {
 	_m.Called(msg)
