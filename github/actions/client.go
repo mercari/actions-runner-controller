@@ -255,7 +255,7 @@ func (c *Client) Identifier() string {
 
 	if c.creds.AppCreds != nil {
 		identifier += fmt.Sprintf(
-			"appID:%q,installationID:%q,key:%q",
+			"appID:%q,installationID:%d,key:%q",
 			c.creds.AppCreds.AppID,
 			c.creds.AppCreds.AppInstallationID,
 			c.creds.AppCreds.AppPrivateKey,
